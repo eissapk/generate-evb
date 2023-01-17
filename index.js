@@ -30,7 +30,8 @@ var RE = {
 
 // Helper to get absolute path to template
 function resolveDefaultTemplatePath(templateName) {
-    return joinPath(__dirname, 'templates', templateName);
+    return templateName;
+    // return joinPath(__dirname, 'templates', templateName);
 }
 
 // Helper to generate a regular expression which will match strings that look like:
@@ -43,16 +44,113 @@ function getInjectRegExp(what) {
 // error.
 // Note: The template file should be encoded in UCS2/UTF16LE (that's the encoding that Enigma Virtual Box expects)
 function loadTemplate(templatePath) {
-    var contents;
-    try {
-        contents = fs.readFileSync(resolvePath(templatePath), 'ucs2');
-        // We remove indents to trim down template size (you can always beautify/prettify the end result if you wish)
-        contents = contents.replace(RE.PRE_TAG_INDENTS, '<');
-    } catch (e) {
-        e.message = "Failed to load template. Template path: '" + templatePath + "'.\n" + e.message;
-        throw e;
-    }
-    return contents;
+  var temps = {
+    "project-template.xml": `<?xml encoding="utf-16"?>
+    <>
+    <InputFile><!-- inject: inputExe --></InputFile>
+    <OutputFile><!-- inject: outputExe --></OutputFile>
+    <Files>
+    <Enabled>true</Enabled>
+    <DeleteExtractedOnExit><!-- inject: deleteExtractedOnExit --></DeleteExtractedOnExit>
+    <CompressFiles><!-- inject: compressFiles --></CompressFiles>
+    <Files>
+    <File>
+    <Type>3</Type>
+    <Name>%DEFAULT FOLDER%</Name>
+    <Action>0</Action>
+    <OverwriteDateTime>false</OverwriteDateTime>
+    <OverwriteAttributes>false</OverwriteAttributes>
+    <Files><!-- inject: files --></Files>
+    </File>
+    </Files>
+    </Files>
+    <Registries>
+    <Enabled>false</Enabled>
+    <Registries>
+    <Registry>
+    <Type>1</Type>
+    <Virtual>true</Virtual>
+    <Name>Classes</Name>
+    <ValueType>0</ValueType>
+    <Value/>
+    <Registries/>
+    </Registry>
+    <Registry>
+    <Type>1</Type>
+    <Virtual>true</Virtual>
+    <Name>User</Name>
+    <ValueType>0</ValueType>
+    <Value/>
+    <Registries/>
+    </Registry>
+    <Registry>
+    <Type>1</Type>
+    <Virtual>true</Virtual>
+    <Name>Machine</Name>
+    <ValueType>0</ValueType>
+    <Value/>
+    <Registries/>
+    </Registry>
+    <Registry>
+    <Type>1</Type>
+    <Virtual>true</Virtual>
+    <Name>Users</Name>
+    <ValueType>0</ValueType>
+    <Value/>
+    <Registries/>
+    </Registry>
+    <Registry>
+    <Type>1</Type>
+    <Virtual>true</Virtual>
+    <Name>Config</Name>
+    <ValueType>0</ValueType>
+    <Value/>
+    <Registries/>
+    </Registry>
+    </Registries>
+    </Registries>
+    <Packaging>
+    <Enabled>false</Enabled>
+    </Packaging>
+    <Options>
+    <ShareVirtualSystem><!-- inject: shareVirtualSystem --></ShareVirtualSystem>
+    <MapExecutableWithTemporaryFile><!-- inject: mapExecutableWithTemporaryFile --></MapExecutableWithTemporaryFile>
+    <AllowRunningOfVirtualExeFiles><!-- inject: allowRunningOfVirtualExeFiles --></AllowRunningOfVirtualExeFiles>
+    </Options>
+    </>`,
+    
+    "dir-template.xml": `<File>
+    <Type>3</Type>
+    <Name><!-- inject: dirName --></Name>
+    <Action>0</Action>
+    <OverwriteDateTime>false</OverwriteDateTime>
+    <OverwriteAttributes>false</OverwriteAttributes>
+    <Files><!-- inject: files --></Files>
+    </File>`,
+    
+    "file-template.xml": `<File>
+    <Type>2</Type>
+    <Name><!-- inject: fileName --></Name>
+    <File><!-- inject: filePath --></File>
+    <ActiveX>false</ActiveX>
+    <ActiveXInstall>false</ActiveXInstall>
+    <Action>0</Action>
+    <OverwriteDateTime>false</OverwriteDateTime>
+    <OverwriteAttributes>false</OverwriteAttributes>
+    <PassCommandLine>false</PassCommandLine>
+    </File>`,
+  };
+  return temps[templatePath];
+    // var contents;
+    // try {
+    //     contents = fs.readFileSync(resolvePath(templatePath), 'ucs2');
+    //     // We remove indents to trim down template size (you can always beautify/prettify the end result if you wish)
+    //     contents = contents.replace(RE.PRE_TAG_INDENTS, '<');
+    //   } catch (e) {
+    //     e.message = "Failed to load template. Template path: '" + templatePath + "'.\n" + e.message;
+    //     throw e;
+    //   }
+    // return contents;
 }
 
 // The default filter approves adding all files and directories
